@@ -37,11 +37,29 @@ public class APKAnalyzerController {
     @Autowired
     private HistoryService historyService;
 
+    // ═══════════════════════════════════════════════════════════════
+    // PAGES WEB
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Page d'accueil - Upload d'APK
+     */
     @GetMapping("/")
     public String index() {
         return "index";
     }
 
+    /**
+     * Page À propos / Présentation du projet
+     */
+    @GetMapping("/about")
+    public String about() {
+        return "about";
+    }
+
+    /**
+     * Analyse d'un fichier APK
+     */
     @PostMapping("/analyze")
     public String analyze(@RequestParam("file") MultipartFile file, Model model) {
         long startTime = System.currentTimeMillis();
@@ -80,7 +98,7 @@ public class APKAnalyzerController {
             lastExportedReport = report;
             lastExportedFileName = file.getOriginalFilename();
 
-            // 7. Sauvegarde dans l'historique (NOUVEAU)
+            // 7. Sauvegarde dans l'historique
             try {
                 // Exporter automatiquement en JSON et PDF pour l'historique
                 String jsonPath = ReportExporter.exportToJson(report);
@@ -89,9 +107,6 @@ public class APKAnalyzerController {
 
                 historyService.saveAnalysis(report, prediction, jsonPath, pdfPath, analysisDuration);
                 System.out.println("✅ Analyse sauvegardée dans l'historique");
-
-                // Optionnel : Nettoyer les anciennes analyses (conserver 90 jours)
-                // historyService.cleanupOldAnalyses(90);
 
             } catch (Exception e) {
                 System.err.println("⚠ Erreur lors de la sauvegarde historique: " + e.getMessage());
@@ -110,7 +125,7 @@ public class APKAnalyzerController {
                     .stream()
                     .collect(java.util.stream.Collectors.groupingBy(
                             SecurityFinding::getMasvsCategory,
-                            java.util.LinkedHashMap::new,          // préserve l'ordre de l'enum
+                            java.util.LinkedHashMap::new,
                             java.util.stream.Collectors.toList()
                     ));
             model.addAttribute("mavsGrouped", mavsGrouped);

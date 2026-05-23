@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure APK Analyzer - Outil open-source d'analyse statique d'APK Android avec scoring AHP, IA comportementale, historique et comparaison.">
+    <meta name="keywords" content="APK, Android, Security, Analyzer, Static Analysis, AHP, Spring Boot, OWASP">
+    <meta name="author" content="Ait Zidane Salma, El Hachimi Abdelhamid, El Ouatik Mourad">
+    <title>Secure APK Analyzer | Analyse statique d'APK Android</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #05050A;
+            --bg-secondary: #0A0A14;
+            --bg-card: #0F0F1A;
+            --bg-elevated: #14141F;
+            --border: rgba(255, 255, 255, 0.06);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --text-muted: #606070;
+            --accent-cyan: #00D4FF;
+            --accent-purple: #7B2CBF;
+            --accent-pink: #FF006E;
+            --accent-green: #00F593;
+            --accent-orange: #FF9E00;
+            --accent-red: #FF3B3B;
+            --critical: #FF3B3B;
+            --high: #FF9E00;
+            --medium: #FFD000;
+            --low: #00F593;
+            --gradient-1: linear-gradient(135deg, #00D4FF 0%, #7B2CBF 50%, #FF006E 100%);
+            --gradient-2: linear-gradient(135deg, #0F0F1A 0%, #1A1A2E 100%);
+            --gradient-3: linear-gradient(90deg, #00D4FF, #7B2CBF, #FF006E);
+            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
+            --glow-purple: 0 0 20px rgba(123, 44, 191, 0.3);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --font-display: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            line-height: 1.5;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background noise texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated gradient orbs */
+        .orb {
+            position: fixed;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.08), transparent 70%);
+            top: -25vw;
+            right: -25vw;
+            pointer-events: none;
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb2 {
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 0, 110, 0.06), transparent 70%);
+            bottom: -20vw;
+            left: -20vw;
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite reverse;
+            z-index: 0;
+        }
+
+        .orb3 {
+            position: fixed;
+            width: 30vw;
+            height: 30vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(123, 44, 191, 0.05), transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: float 25s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px 0;
+            background: rgba(5, 5, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--gradient-1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-3);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .btn-github {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-github:hover {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-app {
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .btn-app:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-purple);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 140px 0 100px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-cyan);
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 28px;
+            letter-spacing: -2px;
+        }
+
+        .hero-gradient-text {
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 550px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Sections */
+        .section {
+            padding: 100px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.08);
+            border-radius: 100px;
+            padding: 4px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 16px auto 0;
+            font-size: 16px;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Pipeline Timeline Styles */
+        .pipeline-timeline {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .pipeline-step {
+            display: flex;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .pipeline-step-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .marker-number {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: white;
+            font-family: var(--font-mono);
+            z-index: 2;
+            animation: gradientShift 4s ease infinite;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .marker-line {
+            flex: 1;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple), transparent);
+            margin-top: 8px;
+            min-height: 40px;
+        }
+
+        .pipeline-step:last-child .marker-line {
+            display: none;
+        }
+
+        .pipeline-step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px 28px;
+            margin-bottom: 0;
+            flex: 1;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .pipeline-step-card:hover {
+            transform: translateX(8px);
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .step-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .step-tag {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 100px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+        }
+
+        /* AI Behavioral Section */
+        .ai-behavioral {
+            background: var(--gradient-2);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            margin-top: 32px;
+            border: 1px solid var(--border);
+        }
+
+        .ai-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .ai-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .ai-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .correlation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .correlation-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .correlation-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .correlation-icons {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .correlation-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-cyan);
+        }
+
+        .correlation-desc {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .verdict-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .verdict-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .verdict-badge {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .verdict-name {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .verdict-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .score-range {
+            margin-top: 32px;
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            border-radius: var(--radius-md);
+        }
+
+        .score-range span {
+            font-family: var(--font-mono);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        /* OWASP MASVS Section */
+        .owasp-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .owasp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .owasp-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-3px);
+        }
+
+        .owasp-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .owasp-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .owasp-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Explanations */
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .explanation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 28px;
+        }
+
+        .explanation-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .severity-list {
+            list-style: none;
+        }
+
+        .severity-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .severity-list li:last-child {
+            border-bottom: none;
+        }
+
+        .severity-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .severity-critical { background: rgba(255, 59, 59, 0.2); color: var(--critical); }
+        .severity-high { background: rgba(255, 158, 0, 0.2); color: var(--high); }
+        .severity-medium { background: rgba(255, 208, 0, 0.2); color: var(--medium); }
+        .severity-low { background: rgba(0, 245, 147, 0.2); color: var(--low); }
+
+        /* Team */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .team-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-purple);
+        }
+
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Animations on scroll */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .correlation-grid { grid-template-columns: 1fr; }
+            .verdict-grid { grid-template-columns: repeat(2, 1fr); }
+            .owasp-grid { grid-template-columns: repeat(2, 1fr); }
+            .explanation-grid { grid-template-columns: 1fr; }
+            .team-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 48px; }
+            .section-title { font-size: 36px; }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .pipeline-step {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .pipeline-step-marker {
+                width: auto;
+                flex-direction: row;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+            .marker-line {
+                display: none;
+            }
+            .pipeline-step-card:hover {
+                transform: translateY(-4px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="orb"></div>
+<div class="orb2"></div>
+<div class="orb3"></div>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="#" class="logo">
+            <div class="logo-icon">🔒</div>
+            <span class="logo-text">Secure APK Analyzer</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Fonctionnalités</a>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#ai-behavioral">IA Behavioral</a>
+            <a href="#owasp">OWASP MASVS</a>
+            <a href="#explanations">Sévérités</a>
+            <a href="#team">Équipe</a>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="https://github.com/abdotranscript25/secure-apk-analyzer-finale" class="btn-github" target="_blank">↗ GitHub</a>
+            <a href="/" class="btn-app">🚀 Lancer l'app</a>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge animate-on-scroll">Projet académique · ENSA Marrakech · v1.0.0</div>
+            <h1 class="animate-on-scroll">
+                <span class="hero-gradient-text">Secure APK<br>Analyzer</span>
+            </h1>
+            <p class="hero-description animate-on-scroll">
+                Une plateforme open-source qui automatise l'analyse statique d'APK Android —
+                combinant détection de vulnérabilités, scoring AHP, et suivi historique.
+            </p>
+            <div class="hero-stats animate-on-scroll">
+                <div><span class="stat-number">20+</span><br><span class="stat-label">Règles de sécurité</span></div>
+                <div><span class="stat-number">23</span><br><span class="stat-label">Permissions dangereuses</span></div>
+                <div><span class="stat-number">A+→F</span><br><span class="stat-label">Grades de sécurité</span></div>
+                <div><span class="stat-number">PDF/JSON</span><br><span class="stat-label">Export</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">Fonctionnalités</div>
+                <h2 class="section-title">Analyse statique complète</h2>
+                <p class="section-subtitle">Détection automatique des vulnérabilités Android</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Analyse statique d'APK</h3>
+                    <p class="feature-description">Extrait les permissions, composants exportés et configurations via JADX — sans code source requis.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">⚖️</div>
+                    <h3 class="feature-title">Scoring AHP</h3>
+                    <p class="feature-description">Notation pondérée (0-100) basée sur la méthode AHP avec poids personnalisés par sévérité.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🧠</div>
+                    <h3 class="feature-title">IA Comportementale</h3>
+                    <p class="feature-description">Prédiction du niveau de risque : MALWARE / HIGH_RISK / SUSPICIOUS / SAFE.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Historique & Comparaison</h3>
+                    <p class="feature-description">Base H2 intégrée. Comparez deux versions pour suivre l'évolution.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">📄</div>
+                    <h3 class="feature-title">Export PDF / JSON</h3>
+                    <p class="feature-description">Rapports professionnels prêts à être partagés ou intégrés en CI/CD.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Mapping OWASP MASVS v2</h3>
+                    <p class="feature-description">Chaque vulnérabilité est mappée aux 8 catégories MASVS.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline Section -->
+    <section class="section" id="pipeline">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">⚙️ Workflow</div>
+                <h2 class="section-title">Pipeline d'analyse</h2>
+                <p class="section-subtitle">Comment votre APK est traitée étape par étape</p>
+            </div>
+
+            <div class="pipeline-timeline animate-on-scroll">
+                <!-- Étape 1 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">01</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">📱</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Upload de l'APK</h3>
+                            <p class="step-description">Déposez votre fichier .apk (jusqu'à 100 Mo) via l'interface web. L'APK est temporairement stockée pour analyse.</p>
+                            <div class="step-tags"><span class="step-tag">Multipart upload</span><span class="step-tag">Validation MIME</span><span class="step-tag">Stockage temporaire</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 2 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">02</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">🔧</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Extraction & Décompilation</h3>
+                            <p class="step-description">L'APK est décompressée (ZIP) et décompilée avec JADX pour obtenir le code Java et les ressources XML.</p>
+                            <div class="step-tags"><span class="step-tag">Zip extraction</span><span class="step-tag">JADX decompiler</span><span class="step-tag">~5-30 secondes</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 3 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">03</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">📋</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Analyse du Manifest</h3>
+                            <p class="step-description">Extraction des permissions, composants exportés, flags de sécurité (debuggable, allowBackup, usesCleartextTraffic, SDK versions).</p>
+                            <div class="step-tags"><span class="step-tag">Permissions (23 dangereuses)</span><span class="step-tag">Composants exportés</span><span class="step-tag">SDK min/target</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 4 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">04</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">💻</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Analyse du Code Java</h3>
+                            <p class="step-description">Scan des fichiers .java décompilés avec 20+ règles : détection de code dangereux, secrets en dur, WebView vulnérable, SQL injection, crypto faible, logs sensibles.</p>
+                            <div class="step-tags"><span class="step-tag">20+ règles</span><span class="step-tag">Pattern matching</span><span class="step-tag">Extraction URLs/IPs/Emails</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 5 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">05</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">⚖️</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Scoring AHP</h3>
+                            <p class="step-description">Calcul du score de sécurité basé sur la méthode AHP : pondération des vulnérabilités (C:0.40, H:0.32, M:0.16, L:0.12) + pénalités logarithmique et critique.</p>
+                            <div class="step-tags"><span class="step-tag">Score 0-100</span><span class="step-tag">Grade A+ à F</span><span class="step-tag">Risque CRITICAL→LOW</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 6 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">06</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">🧠</div>
+                        <div class="step-content">
+                            <h3 class="step-title">IA Comportementale</h3>
+                            <p class="step-description">Corrélation multi-signaux : combinaison des permissions et comportements pour prédire le niveau de menace (MALWARE / HIGH_RISK / SUSPICIOUS / SAFE).</p>
+                            <div class="step-tags"><span class="step-tag">SMS + Internet → exfiltration</span><span class="step-tag">Accessibility + SMS → spyware</span><span class="step-tag">Camera + Micro → surveillance</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 7 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">07</div>
+                        <div class="marker-line"></div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">📊</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Génération du Rapport</h3>
+                            <p class="step-description">Création du rapport détaillé au format HTML (affichage web), JSON (exploitation externe) et PDF (partage professionnel).</p>
+                            <div class="step-tags"><span class="step-tag">HTML + Thymeleaf</span><span class="step-tag">JSON structuré</span><span class="step-tag">PDF avec iText 7</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 8 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-step-marker">
+                        <div class="marker-number">08</div>
+                    </div>
+                    <div class="pipeline-step-card">
+                        <div class="step-icon">💾</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Sauvegarde Historique</h3>
+                            <p class="step-description">Stockage automatique des métadonnées d'analyse dans la base H2, avec conservation des rapports JSON et PDF pour consultation ultérieure.</p>
+                            <div class="step-tags"><span class="step-tag">Base H2 intégrée</span><span class="step-tag">Historique consultable</span><span class="step-tag">Comparaison possible</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Behavioral Section -->
+    <section class="section" id="ai-behavioral">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">🤖 Intelligence Artificielle</div>
+                <h2 class="section-title">Heuristique comportementale</h2>
+                <p class="section-subtitle">Corrélation multi-signaux pour la détection de malwares</p>
+            </div>
+
+            <div class="ai-behavioral animate-on-scroll">
+                <div class="ai-header">
+                    <h3 class="ai-title">🔬 Corrélation multi-signaux</h3>
+                    <p class="ai-subtitle">L'IA analyse les combinaisons de permissions et comportements suspects</p>
+                </div>
+
+                <div class="correlation-grid">
+                    <div class="correlation-card">
+                        <div class="correlation-icons">📱 SMS + 🌐 Internet + 🔑 Secrets</div>
+                        <h4 class="correlation-title">Exfiltration de données</h4>
+                        <p class="correlation-desc">Combinaison de permissions SMS, accès réseau et détection de secrets en dur → indicateur fort d'exfiltration.</p>
+                    </div>
+                    <div class="correlation-card">
+                        <div class="correlation-icons">♿ Accessibility + 📱 SMS</div>
+                        <h4 class="correlation-title">Spyware</h4>
+                        <p class="correlation-desc">Service d'accessibilité + lecture SMS → permet l'interception des messages et codes 2FA.</p>
+                    </div>
+                    <div class="correlation-card">
+                        <div class="correlation-icons">📷 Camera + 🎤 Micro + 🌐 Internet</div>
+                        <h4 class="correlation-title">Surveillance</h4>
+                        <p class="correlation-desc">Accès caméra/microphone + communication réseau → permet l'exfiltration de médias enregistrés.</p>
+                    </div>
+                    <div class="correlation-card">
+                        <div class="correlation-icons">🗄️ Storage + 🌐 Internet + 🔑 API Keys</div>
+                        <h4 class="correlation-title">Vol de données</h4>
+                        <p class="correlation-desc">Lecture stockage externe + réseau + clés API → exfiltration massive vers serveur distant.</p>
+                    </div>
+                </div>
+
+                <div class="verdict-grid">
+                    <div class="verdict-card"><div class="verdict-badge">🔴</div><div class="verdict-name">MALWARE</div><div class="verdict-desc">Multiples corrélations critiques détectées</div></div>
+                    <div class="verdict-card"><div class="verdict-badge">🟠</div><div class="verdict-name">HIGH_RISK</div><div class="verdict-desc">Corrélations suspectes identifiées</div></div>
+                    <div class="verdict-card"><div class="verdict-badge">🟡</div><div class="verdict-name">SUSPICIOUS</div><div class="verdict-desc">Comportements anormaux isolés</div></div>
+                    <div class="verdict-card"><div class="verdict-badge">🟢</div><div class="verdict-name">SAFE</div><div class="verdict-desc">Aucune corrélation malveillante</div></div>
+                </div>
+
+                <div class="score-range">
+                    <p style="margin-bottom: 12px; color: var(--text-muted);">Score comportemental</p>
+                    <span>0</span> <span style="color: var(--text-secondary);">→</span> <span>100</span>
+                    <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">+100% = MALWARE détecté avec haute confiance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OWASP MASVS Section -->
+    <section class="section" id="owasp">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">🛡️ Standards de sécurité</div>
+                <h2 class="section-title">Catégorisation OWASP MASVS v2</h2>
+                <p class="section-subtitle">Chaque vulnérabilité est mappée aux 8 catégories MASVS</p>
+            </div>
+            <div class="owasp-grid">
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">💾</div><div class="owasp-name">STORAGE</div><div class="owasp-desc">Stockage sécurisé</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">🔐</div><div class="owasp-name">CRYPTO</div><div class="owasp-desc">Cryptographie</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">🆔</div><div class="owasp-name">AUTH</div><div class="owasp-desc">Authentification</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">🌐</div><div class="owasp-name">NETWORK</div><div class="owasp-desc">Communications</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">📱</div><div class="owasp-name">PLATFORM</div><div class="owasp-desc">Plateforme</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">📝</div><div class="owasp-name">CODE</div><div class="owasp-desc">Qualité du code</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">🔄</div><div class="owasp-name">RESILIENCE</div><div class="owasp-desc">Anti-reversing</div></div>
+                <div class="owasp-card animate-on-scroll"><div class="owasp-icon">⚙️</div><div class="owasp-name">ENV</div><div class="owasp-desc">Environnement</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Severities Explanations -->
+    <section class="section" id="explanations">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">📊 Comprendre les sévérités</div>
+                <h2 class="section-title">Niveaux de vulnérabilités</h2>
+                <p class="section-subtitle">Classification AHP pour prioriser les corrections</p>
+            </div>
+            <div class="explanation-grid">
+                <div class="explanation-card animate-on-scroll">
+                    <h3 class="explanation-title"><span class="severity-badge severity-critical">🔴</span> CRITICAL</h3>
+                    <ul class="severity-list">
+                        <li><span class="severity-badge severity-critical">!</span> <strong>Secrets en dur</strong> — extraction possible par attaquant</li>
+                        <li><span class="severity-badge severity-critical">!</span> <strong>WebView RCE</strong> — exécution de code arbitraire</li>
+                        <li><span class="severity-badge severity-critical">!</span> <strong>Debuggable en prod</strong> — exposition des données</li>
+                        <li><span class="severity-badge severity-critical">!</span> <strong>SQL injection</strong> — accès DB non autorisé</li>
+                    </ul>
+                </div>
+                <div class="explanation-card animate-on-scroll">
+                    <h3 class="explanation-title"><span class="severity-badge severity-high">🟠</span> HIGH</h3>
+                    <ul class="severity-list">
+                        <li><span class="severity-badge severity-high">!</span> <strong>HTTP en clair</strong> — interception MITM</li>
+                        <li><span class="severity-badge severity-high">!</span> <strong>Permissions excessives</strong> — accès non justifié</li>
+                        <li><span class="severity-badge severity-high">!</span> <strong>allowBackup activé</strong> — fuite via sauvegardes</li>
+                        <li><span class="severity-badge severity-high">!</span> <strong>Composants exportés</strong> — accès tierces apps</li>
+                    </ul>
+                </div>
+                <div class="explanation-card animate-on-scroll">
+                    <h3 class="explanation-title"><span class="severity-badge severity-medium">🟡</span> MEDIUM</h3>
+                    <ul class="severity-list">
+                        <li><span class="severity-badge severity-medium">!</span> <strong>Crypto faible</strong> — MD5, SHA-1, DES, ECB</li>
+                        <li><span class="severity-badge severity-medium">!</span> <strong>Logs sensibles</strong> — exposition en clair</li>
+                        <li><span class="severity-badge severity-medium">!</span> <strong>java.util.Random</strong> — valeurs prévisibles</li>
+                        <li><span class="severity-badge severity-medium">!</span> <strong>IV statique</strong> — affaiblissement CBC</li>
+                    </ul>
+                </div>
+                <div class="explanation-card animate-on-scroll">
+                    <h3 class="explanation-title"><span class="severity-badge severity-low">🟢</span> LOW</h3>
+                    <ul class="severity-list">
+                        <li><span class="severity-badge severity-low">!</span> <strong>Emails exposés</strong> — information mineure</li>
+                        <li><span class="severity-badge severity-low">!</span> <strong>Anti-debug détecté</strong> — code obfusqué</li>
+                        <li><span class="severity-badge severity-low">!</span> <strong>IPs internes</strong> — révélation infrastructure</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="section" id="team">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-tag">👥 Équipe</div>
+                <h2 class="section-title">Auteurs</h2>
+                <p class="section-subtitle">Programme GCDSTE · ENSA Marrakech</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-card animate-on-scroll"><div class="team-avatar">AS</div><h3>Ait Zidane Salma</h3><div class="team-role">Développeuse</div><div style="font-size:12px;color:var(--text-muted);">Analyse & Sécurité</div></div>
+                <div class="team-card animate-on-scroll"><div class="team-avatar">EH</div><h3>El Hachimi Abdelhamid</h3><div class="team-role">Développeur</div><div style="font-size:12px;color:var(--text-muted);">Backend & Architecture</div></div>
+                <div class="team-card animate-on-scroll"><div class="team-avatar">EO</div><h3>El Ouatik Mourad</h3><div class="team-role">Développeur</div><div style="font-size:12px;color:var(--text-muted);">Frontend & UI/UX</div></div>
+            </div>
+            <div style="text-align:center;margin-top:40px;"><div style="display:inline-block;background:rgba(255,255,255,0.05);padding:8px 20px;border-radius:100px;font-size:12px;">Encadré par Pr. Mohamed Lachgar</div></div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-links">
+            <a href="#features">Fonctionnalités</a>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#ai-behavioral">IA Behavioral</a>
+            <a href="#owasp">OWASP MASVS</a>
+            <a href="https://github.com/abdotranscript25/secure-apk-analyzer-finale">GitHub</a>
+            <a href="/">Accueil</a>
+        </div>
+        <div class="footer-copyright">Secure APK Analyzer · v1.0.0 · Licence MIT<br>ENSA Marrakech — Université Cadi Ayyad · 2026</div>
+    </div>
+</footer>
+
+<script>
+    // Scroll animation observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.style.background = 'rgba(5, 5, 10, 0.95)';
+            navbar.style.backdropFilter = 'blur(20px)';
+        } else {
+            navbar.style.background = 'rgba(5, 5, 10, 0.8)';
+            navbar.style.backdropFilter = 'blur(20px)';
+        }
+    });
+</script>
+</body>
+</html>

@@ -12,11 +12,13 @@
         .btn-history {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
-            margin-bottom: 20px;
         }
-        .btn-history:hover {
+        .btn-about {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            border: none;
+        }
+        .btn-history:hover, .btn-about:hover {
             transform: scale(1.02);
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
         .btn-group-custom {
             display: flex;
@@ -25,6 +27,21 @@
         }
         .btn-group-custom .btn {
             flex: 1;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+        .footer-links {
+            margin-top: 10px;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -34,14 +51,17 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white text-center" style="border-radius: 20px 20px 0 0;">
-                    <h1 class="mb-0">🔒 APK Security Analyzer</h1>
+                    <h1 class="mb-0">🔒 Secure APK Analyzer</h1>
                     <p class="mb-0">Analyse statique d'applications Android</p>
                 </div>
                 <div class="card-body p-5">
-                    <!-- Bouton vers l'historique -->
+                    <!-- Boutons groupés -->
                     <div class="btn-group-custom">
-                        <a href="/history" class="btn btn-history btn-lg">
-                            📊 Voir l'historique des analyses
+                        <a href="/history" class="btn btn-history">
+                            📊 Historique des analyses
+                        </a>
+                        <a href="/about" class="btn btn-about">
+                            📖 À propos du projet
                         </a>
                     </div>
 
@@ -57,7 +77,12 @@
                     </form>
                 </div>
                 <div class="card-footer text-muted text-center">
-                    🔒 SecureAPK Analyzer - Analyse statique avancée | 📊 <a href="/history">Historique des analyses</a>
+                    🔒 Secure APK Analyzer - Analyse statique avancée
+                    <div class="footer-links">
+                        <a href="/history">📊 Historique</a> |
+                        <a href="/about">📖 À propos</a> |
+                        <a href="https://github.com/abdotranscript25/secure-apk-analyzer-finale" target="_blank">🐙 GitHub</a>
+                    </div>
                 </div>
             </div>
         </div>
