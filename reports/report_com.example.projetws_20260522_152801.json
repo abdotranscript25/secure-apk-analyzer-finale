@@ -1,0 +1,189 @@
+{
+  "report_date" : "2026-05-22 15:28:01",
+  "file_name" : "1779456270172_app-debug.apk",
+  "package_name" : "com.example.projetws",
+  "version" : "1.0",
+  "version_code" : 1,
+  "min_sdk" : 24,
+  "target_sdk" : 36,
+  "file_size_mb" : 10.62,
+  "total_classes" : 7023,
+  "security_score" : 25,
+  "security_grade" : "F",
+  "risk_level" : "CRITICAL",
+  "severity_counts" : {
+    "critical" : 9,
+    "high" : 4,
+    "medium" : 15,
+    "low" : 1,
+    "total" : 29
+  },
+  "urls_found" : [ "http://192.168.0.162/projet/ws/createEtudiant.php", "http://192.168.0.162/projet/ws/loadEtudiant.php", "http://www.apache.org/licenses/" ],
+  "findings_by_category" : {
+    "Manifest" : [ {
+      "severity" : "CRITICAL",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Application debuggable en production",
+      "recommendation" : "Retirer android:debuggable ou le forcer à false"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Trafic HTTP en clair autorisé",
+      "recommendation" : "Désactiver usesCleartextTraffic"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "minSdkVersion=24",
+      "recommendation" : "Passer minSdkVersion à 29"
+    } ],
+    "Code" : [ {
+      "severity" : "MEDIUM",
+      "location" : "SharedCounter.java",
+      "evidence" : "java.lang.System.loadLibrary(\"datastore_shared_counter\");",
+      "recommendation" : "Chargement bibliothèque native"
+    }, {
+      "severity" : "HIGH",
+      "location" : "zzd.java",
+      "evidence" : "final class zzd extends dalvik.system.PathClassLoader {",
+      "recommendation" : "Chargement de code dynamique (DEX)"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "IidStore.java",
+      "evidence" : "byte[] publicKeyBytes = android.util.Base64.decode(base64PublicKey, 8);",
+      "recommendation" : "Décodage Base64 de valeur sensible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "FirebaseInstallationServiceClient.java",
+      "evidence" : "Log.w(FIS_TAG, availableFirebaseOptions(appId, apiKey, projectId)",
+      "recommendation" : "Ne pas logger de données sensibles en production"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AdvancedTlsX509TrustManager.java",
+      "evidence" : "public void checkClientTrusted(java.security.cert.X509Certificate[] chain, java.lang.String authType) throws java.securi…",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AdvancedTlsX509TrustManager.java",
+      "evidence" : "public void checkServerTrusted(java.security.cert.X509Certificate[] chain, java.lang.String authType, javax.net.ssl.SSLE…",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AdvancedTlsX509TrustManager.java",
+      "evidence" : "currentDelegateManager.checkServerTrusted(chain, authType, sslEngine);",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AdvancedTlsX509TrustManager.java",
+      "evidence" : "currentDelegateManager.checkServerTrusted(chain, authType, sslSocket);",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AdvancedTlsX509TrustManager.java",
+      "evidence" : "currentDelegateManager.checkClientTrusted(chain, authType, sslEngine);",
+      "recommendation" : "Validation certificat désactivée"
+    } ],
+    "Network" : [ {
+      "severity" : "HIGH",
+      "location" : "AddEtudiant.java",
+      "evidence" : "http://192.168.0.162/projet/ws/createEtudiant.php",
+      "recommendation" : "URL HTTP non chiffrée"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "AddEtudiant.java",
+      "evidence" : "192.168.0.162",
+      "recommendation" : "Adresse IP interne exposée"
+    }, {
+      "severity" : "HIGH",
+      "location" : "ListEtudiant.java",
+      "evidence" : "http://192.168.0.162/projet/ws/loadEtudiant.php",
+      "recommendation" : "URL HTTP non chiffrée"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "LICENSE.txt",
+      "evidence" : "http://www.apache.org/licenses/",
+      "recommendation" : "URL HTTP dans les ressources"
+    } ],
+    "Crypto" : [ {
+      "severity" : "MEDIUM",
+      "location" : "Hashing.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "Hashing.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "ByteString.java",
+      "evidence" : "\"md5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "ByteString.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "ByteString.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSink.java",
+      "evidence" : "\"md5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSink.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSink.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSource.java",
+      "evidence" : "\"md5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSource.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSource.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    } ],
+    "Data" : [ {
+      "severity" : "CRITICAL",
+      "location" : "AccessibilityNodeInfoCompat.java",
+      "evidence" : "Mot de passe en dur: ).append(isPassword());\r\n        builder.append(",
+      "recommendation" : "Stocker les secrets dans un gestionnaire sécurisé"
+    }, {
+      "severity" : "HIGH",
+      "location" : "ServiceSpecificExtraArgs.java",
+      "evidence" : "Token en dur: com.google.android.gms.games.key.popupWindowToken",
+      "recommendation" : "Stocker les secrets dans un gestionnaire sécurisé"
+    }, {
+      "severity" : "LOW",
+      "location" : "zzi.java",
+      "evidence" : "u0013android@android.com",
+      "recommendation" : "Adresse email exposée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AutoValue_PersistedInstallationEntry.java",
+      "evidence" : "Clé/secret API en dur:  + this.authToken + ",
+      "recommendation" : "Stocker les secrets dans un gestionnaire sécurisé"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "CertificateUtils.java",
+      "evidence" : "Clé privée PEM embarquée: -----BEGIN PRIVATE KEY-----",
+      "recommendation" : "Stocker les secrets dans un gestionnaire sécurisé"
+    } ]
+  }
+}

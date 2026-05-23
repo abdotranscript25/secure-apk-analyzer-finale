@@ -1,0 +1,56 @@
+{
+  "report_date" : "2026-05-22 14:54:20",
+  "file_name" : "1779454453983_app-debug.apk",
+  "package_name" : "com.example.projetws",
+  "version" : "1.0",
+  "version_code" : 1,
+  "min_sdk" : 24,
+  "target_sdk" : 36,
+  "file_size_mb" : 10.62,
+  "total_classes" : 0,
+  "security_score" : 86,
+  "security_grade" : "A",
+  "risk_level" : "HIGH",
+  "severity_counts" : {
+    "critical" : 1,
+    "high" : 2,
+    "medium" : 0,
+    "low" : 0,
+    "total" : 3
+  },
+  "urls_found" : [ "http://www.apache.org/licenses/", "http://192.168.0.162/projet/ws/createEtudiant.php", "http://192.168.0.162/projet/ws/loadEtudiant.php" ],
+  "findings_by_category" : {
+    "Manifest" : [ {
+      "severity" : "CRITICAL",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Application debuggable en production",
+      "recommendation" : "Retirer android:debuggable ou le forcer à false"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Trafic HTTP en clair autorisé",
+      "recommendation" : "Désactiver usesCleartextTraffic"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "minSdkVersion=24",
+      "recommendation" : "Passer minSdkVersion à 29"
+    } ],
+    "Network" : [ {
+      "severity" : "MEDIUM",
+      "location" : "LICENSE.txt",
+      "evidence" : "http://www.apache.org/licenses/",
+      "recommendation" : "URL HTTP dans les ressources"
+    }, {
+      "severity" : "HIGH",
+      "location" : "classes3.dex",
+      "evidence" : "http://192.168.0.162/projet/ws/createEtudiant.php",
+      "recommendation" : "URL HTTP dans le bytecode DEX"
+    }, {
+      "severity" : "HIGH",
+      "location" : "classes3.dex",
+      "evidence" : "http://192.168.0.162/projet/ws/loadEtudiant.php",
+      "recommendation" : "URL HTTP dans le bytecode DEX"
+    } ]
+  }
+}

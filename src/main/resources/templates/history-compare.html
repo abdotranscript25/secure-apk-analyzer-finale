@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparaison - SecureAPK</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0b0f1a;
+            --bg2: #111827;
+            --bg3: #1a2236;
+            --border: rgba(99,130,190,0.18);
+            --text: #e2e8f0;
+            --muted: #7a8fa6;
+            --accent: #3b82f6;
+            --critical: #ef4444;
+            --high: #f97316;
+            --medium: #eab308;
+            --low: #22c55e;
+            --radius: 10px;
+            --mono: 'JetBrains Mono', monospace;
+            --display: 'Syne', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--display);
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .btn-back {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg2);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg3);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .trend-up { color: var(--low); }
+        .trend-down { color: var(--critical); }
+        .trend-stable { color: var(--muted); }
+
+        .score-diff {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .vs-badge {
+            background: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            th, td { padding: 10px 12px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🔄 Comparaison d'analyses</h1>
+        <a href="/history" class="btn-back">← Retour à l'historique</a>
+    </div>
+
+    <table class="comparison-table">
+        <thead>
+        <tr>
+            <th>Critère</th>
+            <th th:text="${comparison.analysis1.packageName}">Analyse 1</th>
+            <th th:text="${comparison.analysis2.packageName}">Analyse 2</th>
+            <th>Évolution</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Date</td>
+            <td th:text="${comparison.analysis1.formattedDate}">-</td>
+            <td th:text="${comparison.analysis2.formattedDate}">-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Version</td>
+            <td th:text="${comparison.analysis1.versionName} + ' (' + ${comparison.analysis1.versionCode} + ')'">-</td>
+            <td th:text="${comparison.analysis2.versionName} + ' (' + ${comparison.analysis2.versionCode} + ')'">-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>Score de sécurité</strong></td>
+            <td th:text="${comparison.analysis1.securityScore} + '/100'">-</td>
+            <td th:text="${comparison.analysis2.securityScore} + '/100'">-</td>
+            <td>
+                <span th:if="${comparison.scoreDifference > 0}" class="trend-up">▲ +<span th:text="${comparison.scoreDifference}"></span></span>
+                <span th:if="${comparison.scoreDifference < 0}" class="trend-down">▼ <span th:text="${comparison.scoreDifference}"></span></span>
+                <span th:if="${comparison.scoreDifference == 0}" class="trend-stable">● Stable</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Grade</td>
+            <td th:text="${comparison.analysis1.securityGrade}">-</td>
+            <td th:text="${comparison.analysis2.securityGrade}">-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Risque</td>
+            <td th:text="${comparison.analysis1.riskLevel}">-</td>
+            <td th:text="${comparison.analysis2.riskLevel}">-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>🔴 Critiques</td>
+            <td th:text="${comparison.analysis1.criticalCount}">0</td>
+            <td th:text="${comparison.analysis2.criticalCount}">0</td>
+            <td>
+                <span th:if="${comparison.criticalDiff > 0}" class="trend-down">+<span th:text="${comparison.criticalDiff}"></span></span>
+                <span th:if="${comparison.criticalDiff < 0}" class="trend-up"><span th:text="${comparison.criticalDiff}"></span></span>
+                <span th:if="${comparison.criticalDiff == 0}" class="trend-stable">=</span>
+            </td>
+        </tr>
+        <tr>
+            <td>🟠 Élevées</td>
+            <td th:text="${comparison.analysis1.highCount}">0</td>
+            <td th:text="${comparison.analysis2.highCount}">0</td>
+            <td>
+                <span th:if="${comparison.highDiff > 0}" class="trend-down">+<span th:text="${comparison.highDiff}"></span></span>
+                <span th:if="${comparison.highDiff < 0}" class="trend-up"><span th:text="${comparison.highDiff}"></span></span>
+                <span th:if="${comparison.highDiff == 0}" class="trend-stable">=</span>
+            </td>
+        </tr>
+        <tr>
+            <td>🟡 Moyennes</td>
+            <td th:text="${comparison.analysis1.mediumCount}">0</td>
+            <td th:text="${comparison.analysis2.mediumCount}">0</td>
+            <td>
+                <span th:if="${comparison.mediumDiff > 0}" class="trend-down">+<span th:text="${comparison.mediumDiff}"></span></span>
+                <span th:if="${comparison.mediumDiff < 0}" class="trend-up"><span th:text="${comparison.mediumDiff}"></span></span>
+                <span th:if="${comparison.mediumDiff == 0}" class="trend-stable">=</span>
+            </td>
+        </tr>
+        <tr>
+            <td>🟢 Faibles</td>
+            <td th:text="${comparison.analysis1.lowCount}">0</td>
+            <td th:text="${comparison.analysis2.lowCount}">0</td>
+            <td>
+                <span th:if="${comparison.lowDiff > 0}" class="trend-down">+<span th:text="${comparison.lowDiff}"></span></span>
+                <span th:if="${comparison.lowDiff < 0}" class="trend-up"><span th:text="${comparison.lowDiff}"></span></span>
+                <span th:if="${comparison.lowDiff == 0}" class="trend-stable">=</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Total vulnérabilités</td>
+            <td th:text="${comparison.analysis1.totalFindings}">0</td>
+            <td th:text="${comparison.analysis2.totalFindings}">0</td>
+            <td>
+                <span th:if="${comparison.analysis2.totalFindings > comparison.analysis1.totalFindings}" class="trend-down">▲</span>
+                <span th:if="${comparison.analysis2.totalFindings < comparison.analysis1.totalFindings}" class="trend-up">▼</span>
+                <span th:if="${comparison.analysis2.totalFindings == comparison.analysis1.totalFindings}" class="trend-stable">●</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Prédiction IA</td>
+            <td th:text="${comparison.analysis1.predictedRisk} + ' (' + ${comparison.analysis1.predictionConfidence} + '%)'">-</td>
+            <td th:text="${comparison.analysis2.predictedRisk} + ' (' + ${comparison.analysis2.predictionConfidence} + '%)'">-</td>
+            <td>-</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div style="text-align: center; margin-top: 32px;">
+        <div class="vs-badge">Évolution globale</div>
+        <div style="margin-top: 16px;">
+            <span th:if="${comparison.scoreDifference > 0}" class="trend-up" style="font-size: 18px;">
+                ✅ Amélioration de <span th:text="${comparison.scoreDifference}"></span> points
+            </span>
+            <span th:if="${comparison.scoreDifference < 0}" class="trend-down" style="font-size: 18px;">
+                ⚠️ Dégradation de <span th:text="${-comparison.scoreDifference}"></span> points
+            </span>
+            <span th:if="${comparison.scoreDifference == 0}" class="trend-stable" style="font-size: 18px;">
+                📊 Score stable
+            </span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

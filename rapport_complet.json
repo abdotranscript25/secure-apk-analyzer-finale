@@ -1,0 +1,126 @@
+{
+  "apk_info": {
+    "name": "app-debug.apk",
+    "package": "com.example.securestoragelabjava",
+    "version": "1.0",
+    "size_mb": 7.11,
+    "min_sdk": 24,
+    "target_sdk": 36
+  },
+  "summary": {
+    "score": 44,
+    "grade": "E",
+    "risk_level": "HIGH",
+    "critical": 2,
+    "high": 8,
+    "medium": 16,
+    "low": 0,
+    "total": 26
+  },
+  "findings": [
+    {
+      "id": 1,
+      "type": "DEBUGGABLE",
+      "category": "manifest",
+      "evidence": "android:debuggable=\"true\"",
+      "severity": "CRITICAL",
+      "location": "AndroidManifest.xml"
+    },
+    {
+      "id": 2,
+      "type": "OUTDATED_SDK",
+      "category": "manifest",
+      "evidence": "minSdkVersion=24",
+      "severity": "HIGH",
+      "location": "AndroidManifest.xml"
+    },
+    {
+      "id": 3,
+      "type": "HARDCODED_SECRET",
+      "category": "data",
+      "evidence": "secure_api_token",
+      "severity": "CRITICAL",
+      "location": "code"
+    },
+    {
+      "id": 4,
+      "type": "HARDCODED_SECRET",
+      "category": "data",
+      "evidence": "builder.append(isPassword())",
+      "severity": "CRITICAL",
+      "location": "code"
+    },
+    {
+      "id": 5,
+      "type": "HTTP_URL",
+      "category": "network",
+      "evidence": "http://www.apache.org/licenses/",
+      "severity": "MEDIUM",
+      "location": "ressources"
+    },
+    {
+      "id": 6,
+      "type": "DANGEROUS_CODE",
+      "category": "code",
+      "evidence": "Base64.decode(encryptedKeyset)",
+      "severity": "MEDIUM",
+      "location": "code"
+    },
+    {
+      "id": 7,
+      "type": "DANGEROUS_CODE",
+      "category": "code",
+      "evidence": "SecretKeySpec(key, \"AES\")",
+      "severity": "MEDIUM",
+      "location": "code"
+    },
+    {
+      "id": 8,
+      "type": "DANGEROUS_CODE",
+      "category": "code",
+      "evidence": "Cipher.getInstance(\"RSA/ECB/NoPadding\")",
+      "severity": "HIGH",
+      "location": "code"
+    },
+    {
+      "id": 9,
+      "type": "DANGEROUS_CODE",
+      "category": "code",
+      "evidence": "Cipher.getInstance(\"AES/ECB/NoPadding\")",
+      "severity": "HIGH",
+      "location": "code"
+    },
+    {
+      "id": 10,
+      "type": "SENSITIVE_LOG",
+      "category": "code",
+      "evidence": "Log.d(TAG, \"Token sauvegardé\")",
+      "severity": "MEDIUM",
+      "location": "code"
+    },
+    {
+      "id": 11,
+      "type": "SENSITIVE_LOG",
+      "category": "code",
+      "evidence": "Log.d(TAG, \"Token chargé, longueur=\")",
+      "severity": "MEDIUM",
+      "location": "code"
+    },
+    {
+      "id": 12,
+      "type": "SENSITIVE_LOG",
+      "category": "code",
+      "evidence": "Log.e(TAG, \"Erreur chargement token: \")",
+      "severity": "MEDIUM",
+      "location": "code"
+    },
+    {
+      "id": 13,
+      "type": "WEAK_CRYPTO",
+      "category": "crypto",
+      "evidence": "MessageDigest.getInstance(\"SHA-1\")",
+      "severity": "MEDIUM",
+      "location": "code"
+    }
+  ]
+}

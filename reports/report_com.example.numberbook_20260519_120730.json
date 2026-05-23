@@ -1,0 +1,139 @@
+{
+  "report_date" : "2026-05-19 12:07:31",
+  "file_name" : "1779185041621_app-debug.apk",
+  "package_name" : "com.example.numberbook",
+  "version" : "1.0",
+  "version_code" : 1,
+  "min_sdk" : 24,
+  "target_sdk" : 36,
+  "file_size_mb" : 6.66,
+  "total_classes" : 3464,
+  "security_score" : 39,
+  "security_grade" : "F",
+  "risk_level" : "CRITICAL",
+  "severity_counts" : {
+    "critical" : 8,
+    "high" : 3,
+    "medium" : 10,
+    "low" : 0,
+    "total" : 21
+  },
+  "urls_found" : [ "http://192.168.0.162/numberbook-api/api/", "http://www.apache.org/licenses/" ],
+  "findings_by_category" : {
+    "Manifest" : [ {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "allowBackup activé",
+      "recommendation" : "Définir android:allowBackup=\"false\""
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Application debuggable en production",
+      "recommendation" : "Retirer android:debuggable ou le forcer à false"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "Trafic HTTP en clair autorisé",
+      "recommendation" : "Désactiver usesCleartextTraffic"
+    }, {
+      "severity" : "HIGH",
+      "location" : "AndroidManifest.xml",
+      "evidence" : "minSdkVersion=24",
+      "recommendation" : "Passer minSdkVersion à 29"
+    } ],
+    "Code" : [ {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "java.lang.reflect.Method checkServerTrusted = extensionsClass.getMethod(\"checkServerTrusted\", java.security.cert.X509Cer…",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "return new okhttp3.internal.platform.AndroidPlatform.AndroidCertificateChainCleaner(extensions, checkServerTrusted);",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "private final java.lang.reflect.Method checkServerTrusted;",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "AndroidCertificateChainCleaner(java.lang.Object x509TrustManagerExtensions, java.lang.reflect.Method checkServerTrusted)…",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "this.checkServerTrusted = checkServerTrusted;",
+      "recommendation" : "Validation certificat désactivée"
+    }, {
+      "severity" : "CRITICAL",
+      "location" : "AndroidPlatform.java",
+      "evidence" : "return (java.util.List) this.checkServerTrusted.invoke(this.x509TrustManagerExtensions, certificates, \"RSA\", hostname);",
+      "recommendation" : "Validation certificat désactivée"
+    } ],
+    "Network" : [ {
+      "severity" : "HIGH",
+      "location" : "RetrofitClient.java",
+      "evidence" : "http://192.168.0.162/numberbook-api/api/",
+      "recommendation" : "URL HTTP non chiffrée"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "RetrofitClient.java",
+      "evidence" : "192.168.0.162",
+      "recommendation" : "Adresse IP interne exposée"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "LICENSE.txt",
+      "evidence" : "http://www.apache.org/licenses/",
+      "recommendation" : "URL HTTP dans les ressources"
+    } ],
+    "Crypto" : [ {
+      "severity" : "MEDIUM",
+      "location" : "Buffer.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "Buffer.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "ByteString.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "ByteString.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSink.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSink.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSource.java",
+      "evidence" : "\"MD5\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    }, {
+      "severity" : "MEDIUM",
+      "location" : "HashingSource.java",
+      "evidence" : "\"SHA-1\"",
+      "recommendation" : "Algorithme cryptographique obsolète ou faible"
+    } ],
+    "Data" : [ {
+      "severity" : "CRITICAL",
+      "location" : "AccessibilityNodeInfoCompat.java",
+      "evidence" : "Mot de passe en dur: ).append(isPassword());\r\n        builder.append(",
+      "recommendation" : "Stocker les secrets dans un gestionnaire sécurisé"
+    } ]
+  }
+}

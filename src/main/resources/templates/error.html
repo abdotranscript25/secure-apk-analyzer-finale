@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Erreur - SecureAPK</title>
+    <style>
+        body {
+            background: #0b0f1a;
+            color: #e2e8f0;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .error-container {
+            background: #111827;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        h1 { color: #ef4444; font-size: 48px; margin-bottom: 16px; }
+        .error-message { color: #7a8fa6; margin-bottom: 24px; }
+        .btn-back {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <h1>❌ Erreur</h1>
+    <div class="error-message" th:text="${error}">Une erreur est survenue</div>
+    <a href="/" class="btn-back">← Retour à l'accueil</a>
+</div>
+</body>
+</html>
